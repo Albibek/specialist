@@ -1,0 +1,8 @@
+10.0.0.11 mgmt1 mgmt1.corp.un5
+10.0.0.12 mgmt2 mgmt2.corp.un5 
+10.0.0.13 mgmt3 mgmt3.corp.un5 
+10.0.0.14 mgmt4 mgmt4.corp.un5 
+
+192.168.X.101 gate1.corp.un5
+192.168.X.102 gate2.corp.un5
+

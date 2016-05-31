@@ -1,0 +1,22 @@
+$TTL      3h
+@         SOA     ns root.ns  1 1d 12h 1w 3h
+          NS      ns
+
+;gate1        A       192.168.X.101
+;gate2        A       192.168.X.102
+;gate      A       192.168.X.100
+;ns        A       192.168.X.100
+
+
+;ftp      CNAME   server
+;www      CNAME   server
+;nfs      CNAME   server
+;mail     CNAME   server
+;ntp	  CNAME   gate
+
+;ns        A       192.168.X.1
+;ns        A       192.168.X.2
+;node1     A       192.168.X.1
+;node2     A       192.168.X.2
+;gate      A       192.168.X.254
+

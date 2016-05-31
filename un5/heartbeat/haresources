@@ -1,0 +1,6 @@
+gate1.corp.un5 \
+    IPaddr2::192.168.X.200/32/eth1 \
+    ftpserver
+
+#    IPaddr::192.168.X.10/32 \
+#    IPaddr2::192.168.X.10/32/eth0 \

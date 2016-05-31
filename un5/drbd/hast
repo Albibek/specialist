@@ -1,0 +1,18 @@
+#!/bin/sh
+case $1 in
+status)
+        hastctl status r0 | grep -q 'role: init' && hastctl role secondary r0
+        ;;
+start)
+        hastctl role primary r0
+        sleep 5
+        fsck -y -t ufs /dev/hast/r0
+        mount /dev/hast/r0 /disk1
+        ;;
+stop)
+        mount | grep -q hast && umount /disk1
+        hastctl role secondary r0
+        ;;
+esac
+
+exit 0

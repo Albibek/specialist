@@ -1,0 +1,9 @@
+# for eth0
+    up ip route flush table 101
+    up ip route add default via 172.16.0.1 table 101
+
+iface eth3 inet static
+    address 172.16.1.11
+    netmask 255.255.255.0
+    up ip route flush table 102
+    up ip route add default via 172.16.1.1 table 102

@@ -1,0 +1,12 @@
+ucarp-vid 1
+ucarp-vip 192.168.X.100
+ucarp-password "qwerqwer1234"
+#ucarp-master yes
+ucarp-upscript /opt/scripts/vip-up.sh
+ucarp-downscript /opt/scripts/vip-down.sh
+#ucarp-advskew 100
+#ucarp-advbase
+
+iface eth1:ucarp inet static
+    address 192.168.X.100
+    netmask 255.255.255.255

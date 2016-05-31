@@ -1,0 +1,19 @@
+#!/bin/sh
+# Don't forget disable autostart service
+# Uncomment starting services compatible with FreeBSD/Ubuntu
+case $1 in
+start)
+#        /etc/rc.d/ftpd onestart
+	/usr/sbin/service smbd start
+        ;;
+stop)
+#        /etc/rc.d/ftpd onestop
+	/usr/sbin/service smbd stop
+        ;;
+status)
+	service smbd status | grep running && exit 0
+	service smbd status | grep stopped && exit 1
+	;;
+esac
+
+exit 0

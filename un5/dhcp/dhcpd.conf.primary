@@ -1,0 +1,17 @@
+failover peer "dhcp" {
+  primary;
+  address 192.168.X.101;
+  port 519;
+  peer address 192.168.X.102;
+  peer port 520;
+  max-response-delay 60;
+#  max-unacked-updates 10;
+  mclt 600;
+  split 128;
+  load balance max seconds 3;
+}
+### ubuntu
+include "/etc/dhcp/dhcpd.conf.common";
+
+### freebsd
+#include "/usr/local/etc/dhcpd.conf.common";

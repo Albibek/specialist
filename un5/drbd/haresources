@@ -1,0 +1,13 @@
+gate1.corp.un5 \
+    drbddisk \
+    IPaddr2::192.168.X.200/32/eth1 \
+    ftpserver \
+    sambaserver
+
+
+# FreeBSD
+#    IPaddr::192.168.X.10/32 \
+
+#Ubuntu
+#    Filesystem::/dev/drbd0::/disk2::ext4 \
+#    IPaddr2::192.168.X.10/32/eth0 \

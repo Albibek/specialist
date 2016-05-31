@@ -1,0 +1,33 @@
+
+server {
+	listen 80 default_server;
+#	listen [::]:80 default_server ipv6only=off;
+
+#	root /usr/share/nginx/html;
+	index index.html index.htm;
+
+#	server_name www.corp.un5;
+        server_name  "~^(?<name>.+)\.www\.corp\.un5$";
+	root /home/$name/public_html;
+
+
+#	location / {
+#		# First attempt to serve request as file, then
+#		# as directory, then fall back to displaying a 404.
+#		try_files $uri $uri/ =404;
+#		# Uncomment to enable naxsi on this location
+#		# include /etc/nginx/naxsi.rules
+#	}
+
+	location ~ /(.*) {
+		 alias /home/$name/public_html/$1;
+
+	}
+
+	location ~ ^/~(.+?)(/.*)?$ {
+		 alias /home/$1/public_html$2;
+
+	}
+}
+
+

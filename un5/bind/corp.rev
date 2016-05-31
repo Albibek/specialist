@@ -1,0 +1,14 @@
+$TTL    3h
+@       SOA     ns.corp.un5. root.ns.corp.un5.  1 1d 12h 1w 3h
+        NS      ns.corp.un5.
+       
+100      PTR     ns.corp.un5.
+101      PTR     gate1.corp.un5.
+102      PTR     gate2.corp.un5.
+100      PTR     gate.corp.un5.
+;10      PTR     server.corp.un5.
+;1       PTR     gate.corp.un5.
+
+;1       PTR     node1.corp.un5.
+;2       PTR     node2.corp.un5.
+;254     PTR     gate.corp.un5.

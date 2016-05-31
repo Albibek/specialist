@@ -1,0 +1,1 @@
+*/10 * * * * root /opt/scripts/ha_checker.sh active /opt/scripts/sync_users.sh

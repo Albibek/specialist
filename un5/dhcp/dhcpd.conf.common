@@ -1,0 +1,15 @@
+ddns-update-style none;
+
+log-facility local7;
+
+subnet 192.168.X.0 netmask 255.255.255.0 {
+  pool {
+    failover peer "dhcp";
+    range 192.168.X.128 192.168.X.228;
+  }
+  option routers 192.168.X.100;
+  option domain-name "corp.un5";
+  option domain-name-servers 192.168.X.101, 192.168.X.102;
+  default-lease-time 600;
+  max-lease-time 7200;
+}

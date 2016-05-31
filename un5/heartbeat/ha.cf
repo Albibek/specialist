@@ -1,0 +1,11 @@
+#bcast em0
+bcast eth1
+#ucast eth1 172.16.1.Y
+autojoin none
+deadtime 30
+initdead 120
+auto_failback off
+node gate1.corp.un5
+node gate2.corp.un5
+debugfile /var/log/ha-debug
+logfile /var/log/ha-log

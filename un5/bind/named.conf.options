@@ -1,0 +1,61 @@
+options {
+// Linux
+//	directory "/var/cache/bind";
+
+/* FreeBSD
+	// All file and path names are relative to the chroot directory,
+	// if any, and should be fully qualified.
+	directory	"/usr/local/etc/namedb/working";
+	pid-file	"/var/run/named/pid";
+	dump-file	"/var/dump/named_dump.db";
+	statistics-file	"/var/stats/named.stats";
+
+// These zones are already covered by the empty zones listed below.
+// If you remove the related empty zones below, comment these lines out.
+	disable-empty-zone "255.255.255.255.IN-ADDR.ARPA";
+	disable-empty-zone "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.IP6.ARPA";
+	disable-empty-zone "1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.IP6.ARPA";
+
+*/
+
+        allow-recursion { 192.168.X.0/24; 127/8; };
+        
+        forwarders {
+                172.16.0.1;
+// Used in PBR chapter
+                //172.16.1.1; 
+        };
+	
+	dnssec-validation auto;
+
+	auth-nxdomain no;    # conform to RFC1035
+//	listen-on-v6 { no; };
+};
+
+view "inside" {
+        match-clients {
+//            192.168.X/24;
+//            127/8;
+              0/0;
+        };
+        zone "corp.un5" {
+                type master;
+                file "/etc/bind/corp.un5";
+        };
+
+        zone "X.168.192.IN-ADDR.ARPA" {
+                type master;
+                file "/etc/bind/corp.rev";
+        };
+
+	include "/etc/bind/named.conf.default-zones";
+};
+
+view "outside" {
+        zone "corp.un5" {
+                type master;
+                file "/etc/bind/corp.un5.out";
+        };
+
+	include "/etc/bind/named.conf.default-zones";
+};
