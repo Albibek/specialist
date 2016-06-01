@@ -1,0 +1,83 @@
+---
+
+- hosts: all
+  remote_user: spec
+  become: yes
+  become_user: root
+  become_method: su
+  tasks:
+  - name: "Set hostname"
+    hostname: name="gate.corp{{ user_x }}.un"
+  - name: "Setup network"
+    register: interfaces
+    vars:
+        dns_server: 172.16.0.1
+    template:  src=interfaces.j2 dest=/etc/network/interfaces
+    notify: 
+      - restart eth01
+  - name: "NTP"
+    register: ntp
+    shell: "ntpdate pool.ntp.org"
+    when: interfaces|success
+  - name: "Dist upgrade"
+    apt: update_cache=yes upgrade=dist force=yes autoremove=yes
+    register: dist_upgrade
+    when: ntp|success
+
+# Bind DNS
+  - name: "Install bind9"
+    register: install_bind9
+    apt: name=bind9 force=yes
+    when: "( dist_upgrade | success ) or (dist_upgrade.changed == false)"
+  - name: "Configure bind9"
+    template: src="{{item.src}}" dest="{{item.dest}}"
+    with_items:
+      - { src: "corpX.un.j2", dest: "/var/cache/bind/corp{{user_x}}.un" }
+      - { src: "corpX.rev.j2", dest: "/var/cache/bind/corp{{user_x}}.rev" }
+      - { src: "named.conf.local.j2", dest: "/etc/named.conf.local" }
+      - { src: "named.conf.options.j2", dest: "/etc/named.conf.options" }
+      - { src: "bind_vars.j2", dest: "/etc/default/bind9" }
+    when: install_bind9|success
+    notify:
+      - restart bind
+  - name: "Reconfigure DNS"
+    vars:
+        dns_server: 127.0.0.1
+    template:  src=interfaces.j2 dest=/etc/network/interfaces
+    notify: [ restart eth01 ]
+
+# ISC DHCP
+  - name: "Install DHCP"
+    register: install_dhcp
+    apt: name=isc-dhcp-server
+    when: "( dist_upgrade | success ) or (dist_upgrade.changed == false)"
+  - name: "Configure DHCP"
+    template: src="{{item.src}}" dest="{{item.dest}}"
+    with_items:
+      - { src: "dhcpd.conf.j2", dest: "/etc/dhcp/dhcpd.conf" }
+      - { src: "dhcpd_vars.j2", dest: "/etc/default/isc-dhcp-server" }
+    when: install_dhcp|success
+    notify:
+      - restart dhcpd
+
+# NAT
+  - name: "Setup iptables"
+    apt: name=iptables-persistent force=yes
+    when: "( dist_upgrade | success ) or (dist_upgrade.changed == false)"
+  - name: "Setup sysctl"
+    template: src=sysctl.conf.j2 dest=/etc/sysctl.conf
+  - name: "Add rules"
+    shell: "iptables -t nat -F; iptables -t nat -A POSTROUTING -s 192.168.{{user_x}}.0/24 -o eth0 -j SNAT --to-source=172.16.0.11"
+    notify:
+      - save iptables
+
+  handlers:
+    - name: restart eth01
+      shell: "ifdown eth0; ifdown eth1; sleep 1; ifup eth0; ifup eth1"
+    - name: restart bind
+      service: name=bind9 state=restarted
+    - name: restart dhcpd
+      service: name="isc-dhcp-server" state=restarted
+    - name:
+      service: name="iptables-persistent" state=restarted
+
