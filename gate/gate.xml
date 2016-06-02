@@ -13,12 +13,11 @@
     vars:
         dns_server: 172.16.0.1
     template:  src=interfaces.j2 dest=/etc/network/interfaces
-    notify: 
-      - restart eth01
+  - name: "Restart interfaces"
+    shell: "ifdown eth0; ifdown eth1; sleep 1; ifup eth0; ifup eth1"
   - name: "NTP"
     register: ntp
     shell: "ntpdate pool.ntp.org"
-    when: interfaces|success
   - name: "Dist upgrade"
     apt: update_cache=yes upgrade=dist force=yes autoremove=yes
     register: dist_upgrade
@@ -34,8 +33,8 @@
     with_items:
       - { src: "corpX.un.j2", dest: "/var/cache/bind/corp{{user_x}}.un" }
       - { src: "corpX.rev.j2", dest: "/var/cache/bind/corp{{user_x}}.rev" }
-      - { src: "named.conf.local.j2", dest: "/etc/named.conf.local" }
-      - { src: "named.conf.options.j2", dest: "/etc/named.conf.options" }
+      - { src: "named.conf.local.j2", dest: "/etc/bind/named.conf.local" }
+      - { src: "named.conf.options.j2", dest: "/etc/bind/named.conf.options" }
       - { src: "bind_vars.j2", dest: "/etc/default/bind9" }
     when: install_bind9|success
     notify:
@@ -44,7 +43,8 @@
     vars:
         dns_server: 127.0.0.1
     template:  src=interfaces.j2 dest=/etc/network/interfaces
-    notify: [ restart eth01 ]
+  - name: "Restart interfaces again"
+    shell: "ifdown eth0; sleep 1; ifup eth0"
 
 # ISC DHCP
   - name: "Install DHCP"
@@ -66,18 +66,42 @@
     when: "( dist_upgrade | success ) or (dist_upgrade.changed == false)"
   - name: "Setup sysctl"
     template: src=sysctl.conf.j2 dest=/etc/sysctl.conf
+  - name: "Activate sysctl "
+    shell: "sysctl -p /etc/sysctl.conf"
   - name: "Add rules"
     shell: "iptables -t nat -F; iptables -t nat -A POSTROUTING -s 192.168.{{user_x}}.0/24 -o eth0 -j SNAT --to-source=172.16.0.11"
     notify:
       - save iptables
 
+# Postfix with local delivery
+  - name: "Setup postfix"
+    apt: name=postfix force=yes
+    when: "( dist_upgrade | success ) or (dist_upgrade.changed == false)"
+  - name: "Configure postfix"
+    template: src="{{item.src}}" dest="{{item.dest}}"
+    with_items:
+      - { src: "main.cf.j2", dest: "/etc/postfix/main.cf" }
+    notify:
+      - restart postfix
+
+## Dovecot
+  #- name: "Setup dovecot"
+    #apt: name=dovecot-imapd force=yes
+    #when: "( dist_upgrade | success ) or (dist_upgrade.changed == false)"
+  #- name: "configure dovecot"
+    #template: src="{{item.src}}" dest="{{item.dest}}"
+    #with_items:
+      #- { src: "main.cf.j2", dest: "/etc/postfix/main.cf" }
+    #notify:
+      #- restart postfix
+
   handlers:
-    - name: restart eth01
-      shell: "ifdown eth0; ifdown eth1; sleep 1; ifup eth0; ifup eth1"
     - name: restart bind
       service: name=bind9 state=restarted
     - name: restart dhcpd
       service: name="isc-dhcp-server" state=restarted
-    - name:
+    - name: restart postfix
+      service: name=postfix state=restarted
+    - name: save iptables
       service: name="iptables-persistent" state=restarted
-
+ 

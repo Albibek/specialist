@@ -1,0 +1,25 @@
+---
+
+- hosts: all
+  remote_user: spec
+  become: yes
+  become_user: root
+  become_method: su
+  tasks:
+  - name: "Set hostname"
+    hostname: name="server.corp{{ user_x }}.un"
+  - name: "Setup network"
+    register: interfaces
+    template:  src=interfaces.j2 dest=/etc/network/interfaces
+  - name: "Restart eth0"
+    shell: "ifdown eth0; sleep 1; ifup eth0"
+  - name: "ntpdate"
+    shell: "ntpdate pool.ntp.org"
+  - name: "Install NTPD"
+    apt: name=ntp force=yes
+  - name: "Start ntp"
+    service: name=ntp state=restarted
+  - name: "Dist upgrade"
+    apt: update_cache=yes upgrade=dist force=yes autoremove=yes
+
+

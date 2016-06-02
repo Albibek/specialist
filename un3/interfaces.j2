@@ -1,0 +1,20 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.{{ user_x }}.2
+    netmask 255.255.255.0
+    gateway 192.168.{{ user_x }}.1
+    dns-nameservers 192.168.{{ user_x }}.1
+    dns-search corp{{ user_x }}.un
+
+auto eth2
+iface eth2 inet static
+   address 10.0.0.3
+   netmask 255.255.255.0
+
