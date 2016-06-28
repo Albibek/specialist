@@ -1,0 +1,64 @@
+---
+
+- hosts: all
+  remote_user: spec
+  become: yes
+  become_user: root
+  become_method: su
+  tasks:
+  - name: "Set hostname"
+    hostname: name="server.corp{{ user_x }}.un"
+  - name: "Setup network"
+    register: interfaces
+    vars:
+        dns_server: "172.16.0.1"
+    template:  src=server_interfaces.j2 dest=/etc/network/interfaces
+  - name: "Restart interfaces"
+    shell: "ifdown eth0; sleep 1; ifup eth0"
+  - name: "Set time"
+    register: ntp
+    shell: "ntpdate pool.ntp.org"
+  - name: "Dist upgrade"
+    apt: update_cache=yes upgrade=dist force=yes autoremove=yes
+    register: dist_upgrade
+    when: ntp|success
+
+# NTP
+  - name: "Install NTPD"
+    apt: name=openntpd force=yes
+
+# Bind DNS
+  - name: "Install bind9"
+    register: install_bind9
+    apt: name=bind9 force=yes
+    when: "( dist_upgrade | success ) or (dist_upgrade.changed == false)"
+  - name: "Configure bind9"
+    template: src="{{item.src}}" dest="{{item.dest}}"
+    with_items:
+      - { src: "dns/corpX.un.j2", dest: "/var/cache/bind/corp{{user_x}}.un" }
+      - { src: "dns/corpX.rev.j2", dest: "/var/cache/bind/corp{{user_x}}.rev" }
+      - { src: "dns/named.conf.local.j2", dest: "/etc/bind/named.conf.local" }
+      - { src: "dns/named.conf.options.j2", dest: "/etc/bind/named.conf.options" }
+      - { src: "dns/bind_vars.j2", dest: "/etc/default/bind9" }
+    when: install_bind9|success
+  - name: "Start bind"
+    service: name="bind9" state=restarted
+  - name: "Reconfigure DNS"
+    vars:
+        dns_server: 127.0.0.1
+    template:  src=server_interfaces.j2 dest=/etc/network/interfaces
+  - name: "Restart interfaces again"
+    shell: "ifdown eth0; sleep 1; ifup eth0"
+
+# Nginx
+  - name: "Install nginx"
+    register: install_nginx
+    apt: name=nginx force=yes
+  - name: "Install nginx config"
+    template: src=site.j2 dest=/etc/nginx/sites-available/default
+  - file: path=/var/www/html state=directory owner=root group=www-data mode=0755 recurse=yes
+  - name: "Install website"
+    template:  src=index.html.j2 dest=/var/www/html/index.html 
+  - file: path=/var/www/html/index.html owner=www-data group=www-data
+  - name: "Start nginx"
+    service: name="nginx" state=restarted
