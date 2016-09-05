@@ -1,6 +1,6 @@
 [firewall]
 #teacher_firewall user_x=0 ansible_host=10.0.0.2 ansible_port=22
-corp30_firewall user_x=0 ansible_host=10.0.0.2 ansible_port=22
+corp30_firewall user_x=30 ansible_host=10.0.0.2 ansible_port=22
 
 
 # Student hosts go here
@@ -8,7 +8,7 @@ corp30_firewall user_x=0 ansible_host=10.0.0.2 ansible_port=22
 
 [server]
 #teacher_server user_x=0 ansible_host=10.0.0.3 ansible_port=22
-corp30_server user_x=0 ansible_host=10.0.0.3 ansible_port=22
+corp30_server user_x=30 ansible_host=10.0.0.3 ansible_port=22
 
 # Student hosts go here
 #user1 user_x=30 ansible_host=10.
