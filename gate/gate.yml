@@ -37,8 +37,8 @@
       - { src: "named.conf.options.j2", dest: "/etc/bind/named.conf.options" }
       - { src: "bind_vars.j2", dest: "/etc/default/bind9" }
     when: install_bind9|success
-    notify:
-      - restart bind
+  - name: "Restart bind9"
+    shell: "service bind9 restart"
   - name: "Reconfigure DNS"
     vars:
         dns_server: 127.0.0.1
@@ -70,8 +70,8 @@
     shell: "sysctl -p /etc/sysctl.conf"
   - name: "Add rules"
     shell: "iptables -t nat -F; iptables -t nat -A POSTROUTING -s 192.168.{{user_x}}.0/24 -o eth0 -j SNAT --to-source=172.16.0.11"
-    notify:
-      - save iptables
+  - name: "save iptables"
+    shell: "service iptables-persistent restart || service netfilter-persistent restart"
 
 # Postfix with local delivery
   - name: "Setup postfix"
@@ -96,12 +96,7 @@
       #- restart postfix
 
   handlers:
-    - name: restart bind
-      service: name=bind9 state=restarted
     - name: restart dhcpd
       service: name="isc-dhcp-server" state=restarted
     - name: restart postfix
       service: name=postfix state=restarted
-    - name: save iptables
-      service: name="iptables-persistent" state=restarted
- 
