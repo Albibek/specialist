@@ -1,0 +1,52 @@
+---
+- name: Set hostname
+  hostname: name="{{ host }}.corp{{ user_x }}.un"
+
+- name: Hack random numbers problem 
+  mount:
+    path: /dev/random
+    src: /dev/urandom
+    fstype: none 
+    opts: bind
+    state: present
+
+- name: update package cache
+  tags: [ common, repos ]
+  apt:
+      update_cache: yes
+ 
+- name: install additional packages
+  apt:
+    name: "{{ item }}"
+    install-recommends: false
+  loop:
+      - tmux
+      - rsync
+      - less
+      - vim
+      - nano
+      - ntpdate
+      - ifupdown
+ 
+- name: clear netplan
+  file:
+    name: "/etc/netplan"
+    state: absent
+
+- name: install vimrc
+  tags: [ common, vim ]
+  copy:
+      src: files/vimrc.local
+      dest: /etc/vim/vimrc.local
+      mode: 0644
+      owner: root
+      group: root
+
+- name: Ensure 'sudo' group to have passwordless sudo
+  tags: [ users, common, sudo ]
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%sudo'
+    line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+    validate: visudo -cf %s

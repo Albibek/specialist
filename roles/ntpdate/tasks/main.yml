@@ -1,0 +1,4 @@
+---
+- name: Sync time
+  shell: "ntpdate pool.ntp.org"
+

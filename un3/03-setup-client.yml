@@ -1,0 +1,33 @@
+---
+- name: Setup un3 client
+  tags: [ module1, client ]
+  hosts: [ un3_client ]
+  tasks:
+    - name: Basic setup
+      include_role:
+        name: basic
+    - name: Sync time
+      include_role:
+        name: ntpdate
+    - name: Setup network
+      vars:
+        interfaces_template: templates/interfaces/client_initial.j2  
+        dns_server: "192.168.{{ user_x }}.1" 
+        restart_interfaces:
+          - "{{ interfaces.internal }}"
+      include_role:
+        name: network
+    - name: Setup gui
+      apt:
+        name: "{{ item }}"
+        install_recommends: true
+      loop:
+        - firefox
+        - thunderbird
+        - virtualbox-guest-dkms
+        - virtualbox-guest-x11
+        - lubuntu-desktop
+        - lxterminal
+
+
+   

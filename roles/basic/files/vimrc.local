@@ -1,0 +1,6 @@
+let g:skip_defaults_vim = 1
+set ts=2
+set sw=2
+set et
+set mouse=   " Disable mysh krodetsya
+syntax on

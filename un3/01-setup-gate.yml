@@ -1,0 +1,46 @@
+---
+- name: Setup un3 gate
+  tags: [ module1, gate ]
+  hosts: [ un3_gate ]
+  tasks:
+    - name: Basic setup
+      include_role:
+        name: basic
+    - name: Sync time
+      include_role:
+        name: ntpdate
+    - name: Setup network
+      vars:
+        interfaces_template: templates/interfaces/gate_initial.j2  
+        restart_interfaces: 
+          - "{{ interfaces.inet }}"
+          - "{{ interfaces.internal }}"
+        dns_server: 172.16.0.1
+      include_role:
+        name: network
+    - name: Setup Internet gate functions
+      tags: [ role-gate ]
+      include_role:
+        name: gate
+    - name: Setup postfix
+      include_role:
+        name: postfix
+      vars:
+        postfix_setup: local
+    - name: Setup DNS
+      include_role: 
+        name: dns
+      vars:
+        dns_forwarder: 172.16.0.1
+    - name: Setup network after DNS
+      vars:
+        interfaces_template: templates/interfaces/gate_initial.j2  
+        dns_server: "192.168.{{ user_x }}.1"
+        restart_interfaces: 
+          - "{{ interfaces.inet }}"
+      include_role:
+        name: network
+    - name: Setup DHCP
+      include_role: 
+        name: dhcpd
+

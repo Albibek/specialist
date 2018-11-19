@@ -1,0 +1,12 @@
+---
+- name: Install dhcpd
+  register: install_dhcp
+  apt: name=isc-dhcp-server
+- name: Configure dhcpd
+  template: src="{{item.src}}" dest="{{item.dest}}"
+  loop:
+    - { src: "templates/dhcpd.conf.j2", dest: "/etc/dhcp/dhcpd.conf" }
+    - { src: "templates/dhcpd_vars.j2", dest: "/etc/default/isc-dhcp-server" }
+  notify:
+    - restart dhcpd
+

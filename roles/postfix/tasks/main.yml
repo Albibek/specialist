@@ -1,0 +1,13 @@
+---
+# Postfix with local delivery
+  - name: Setup postfix
+    apt: name=postfix force=yes install_recommends=no
+  - name: Configure postfix
+    template: src="{{item.src}}" dest="{{item.dest}}"
+    loop:
+      - { src: "templates/local/main.cf.j2", dest: "/etc/postfix/main.cf" }
+    when: postfix_setup == 'local'
+    notify:
+      - restart postfix
+
+

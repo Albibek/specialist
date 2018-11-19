@@ -1,0 +1,43 @@
+--- 
+all:
+  vars:
+    ansible_python_interpreter: "/usr/bin/python3"
+    default_become: true
+    connection: ssh    
+    become_user: root
+    ansible_sudo_pass: spec
+    #ansible_become_method: su
+    ansible_ssh_user: spec
+    ansible_ssh_pass: spec
+    remote_user: spec
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+    user_x: 30
+  hosts:
+    template:
+    un3_gate:
+      host: gate
+      interfaces:
+        inet: enp0s3
+        internal: enp0s8
+        mgmt:
+          iface: enp0s9
+          ip: 10.0.0.2
+      ansible_host: 10.0.0.2
+    un3_server:
+      host: server
+      interfaces:
+        internal: enp0s3
+        mgmt:
+          iface: enp0s9
+          ip: 10.0.0.3
+      ansible_host: 10.0.0.3
+    un3_client:
+      host: client
+      interfaces:
+        internal: enp0s3
+        mgmt:
+          iface: enp0s9
+          ip: 10.0.0.4
+      ansible_host: 10.0.0.3
+
+

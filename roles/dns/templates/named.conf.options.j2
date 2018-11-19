@@ -1,0 +1,15 @@
+options {
+	directory "/var/cache/bind";
+	allow-recursion {
+		127/8;
+		10/8;
+		172.16/19;
+		192.168/16;
+	};
+	forwarders {
+		{{ dns_forwarder }};
+	};
+	dnssec-validation no;
+	auth-nxdomain no;
+	listen-on-v6 { any; };
+};

@@ -1,0 +1,14 @@
+---
+- name: Setup iptables
+  apt: name=iptables-persistent force=yes
+- name: Setup sysctl to allow forwarding
+  copy: src=files/30-gate.conf dest=/etc/sysctl.d/30-gate.conf
+- name: Activate sysctl 
+  shell: sysctl -p /etc/sysctl.d/30-gate.conf
+- name: Add firewall NAT rule
+  tags: 
+    - netfilter
+    - iptables
+  shell: "iptables -t nat -F; iptables -t nat -A POSTROUTING -s 192.168.{{user_x}}.0/24 -o {{ interfaces.inet }} -j SNAT --to-source=172.16.0.11" 
+  notify: save iptables
+

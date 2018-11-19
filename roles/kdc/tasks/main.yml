@@ -1,0 +1,39 @@
+---
+- name: Setup KDC packages
+  apt: 
+    name: "{{ item }}"
+    install_recommends: false
+  loop:
+    - krb5-kdc
+    - krb5-admin-server
+
+- name: Configure kdc
+  template: 
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
+  loop:
+   - { src: "templates/kdc.conf.j2", dest: "/etc/krb5kdc/kdc.conf" }
+  notify: restart kdc
+
+- name: Delete old realm
+  file: 
+    name: /var/lib/krb5kdc
+    state: "{{ item }}"
+  loop:
+    - absent
+    - directory
+  when: create_kdc 
+
+- name: Create realm
+  shell: "/usr/sbin/kdb5_util create -s"
+  args:
+    stdin: "spec\nspec"
+  when: create_kdc 
+  notify: restart kdc
+
+- name: Create demo users
+  shell: "/usr/sbin/kadmin.local addprinc -pw spec {{ item }}"
+  loop:
+    - user1
+    - user2
+  when: create_kdc

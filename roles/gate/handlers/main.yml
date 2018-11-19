@@ -1,0 +1,4 @@
+---
+- name: save iptables
+  tags: [ netfilter, iptables ]
+  shell: "/usr/sbin/netfilter-persistent save" 

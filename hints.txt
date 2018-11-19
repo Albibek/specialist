@@ -1,0 +1,22 @@
+# clone 3 VMs
+# setup networking!
+
+# setup gate
+ansible-playbook -e ansible_host=10.0.0.?? un3/01-setup-gate.yml 
+# REBOOT GATE
+
+# setup server
+ansible-playbook -e ansible_host=10.0.0.?? un3/02-setup-server.yml 
+# REBOOT server
+
+# setup client, can go parallel to server, change ip!
+ansible-playbook -e ansible_host=10.0.0.?? un3/03-setup-client.yml 
+# reboot client
+
+
+# Setup KDC on server
+ansible-playbook -l un3_server -e create_kdc=true un3/4.1-setup-kdc.conf
+
+# config changes should go without recreating kdc
+ansible-playbook -e ansible_host=10.0.0.3 un3/4.1-setup-kdc.conf 
+

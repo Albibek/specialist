@@ -1,0 +1,20 @@
+;
+; BIND data file for local loopback interface
+;
+$TTL	604800
+@	IN	SOA	corp{{ user_x }}.un. root.localhost. (
+			      2		; Serial
+			 604800		; Refresh
+			  86400		; Retry
+			2419200		; Expire
+			 604800 )	; Negative Cache TTL
+;
+@	IN	NS	ns.corp{{ user_x }}.un.
+@	IN	A	192.168.{{ user_x }}.1
+ns	IN	A	192.168.{{ user_x }}.1
+gate	IN	A	192.168.{{ user_x }}.1
+server IN A 192.168.{{ user_x }}.2
+
+;_kerberos._udp      SRV     01 00 88 server
+;_kerberos._tcp      SRV     01 00 88 server
+;_kerberos           TXT     CORP{{ user_x }}.UN

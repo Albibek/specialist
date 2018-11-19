@@ -1,0 +1,12 @@
+---
+- name: Install bind
+  apt: name=bind9 force=yes install_recommends=false
+- name: Configure bin
+  template: src="{{item.src}}" dest="{{item.dest}}"
+  loop:
+    - { src: "templates/corpX.un.j2", dest: "/var/cache/bind/corp{{user_x}}.un" }
+    - { src: "templates/corpX.rev.j2", dest: "/var/cache/bind/corp{{user_x}}.rev" }
+    - { src: "templates/named.conf.local.j2", dest: "/etc/bind/named.conf.local" }
+    - { src: "templates/named.conf.options.j2", dest: "/etc/bind/named.conf.options" }
+    - { src: "templates/bind_vars.j2", dest: "/etc/default/bind9" }
+  notify: restart bind

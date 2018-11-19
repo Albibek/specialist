@@ -1,0 +1,21 @@
+---
+- name: Setup network
+  template:  
+    src: "{{ interfaces_template }}"
+    dest: /etc/network/interfaces
+
+- name: Restart interfaces
+  shell: "ifdown --force {{ item }}; ifup {{ item }};"
+  loop: "{{ restart_interfaces }}"
+
+- name: Setup static resolv.conf (remove symlink)
+  file: 
+    name: /etc/resolv.conf
+    state: absent
+
+- name: Setup static resolv.conf (place static file)
+  template: 
+    src: templates/resolv.conf.j2
+    dest: /etc/resolv.conf
+
+

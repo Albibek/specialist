@@ -1,0 +1,26 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto {{ interfaces.inet }}
+iface {{ interfaces.inet }} inet static
+    address 172.16.0.11
+    netmask 255.255.255.0
+    gateway 172.16.0.1
+    dns-nameservers {{ dns_server }}
+    dns-search corp{{ user_x }}.un
+
+auto {{ interfaces.internal }}
+iface {{ interfaces.internal }} inet static
+    address 192.168.{{ user_x }}.1
+    netmask 255.255.255.0
+
+auto  {{ interfaces.mgmt.iface }}
+iface {{ interfaces.mgmt.iface }} inet static
+   address {{ interfaces.mgmt.ip }}
+   netmask 255.255.255.0
+

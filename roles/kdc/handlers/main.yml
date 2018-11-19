@@ -1,0 +1,5 @@
+---
+- name: restart kdc
+  systemd: 
+    name: krb5-kdc
+    state: restarted
